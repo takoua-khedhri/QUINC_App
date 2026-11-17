@@ -1,0 +1,12 @@
+# Build Maven
+target/
+
+# Sauvegardes de base (contiennent des données réelles)
+gestion_AVANT_RESET_*.db
+gestion_SAUVEGARDE_*.db
+*.db-journal
+Backup_Facturation_*/
+
+# IDE
+nbproject/private/
+*.sqbpro

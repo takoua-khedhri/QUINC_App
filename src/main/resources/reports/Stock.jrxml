@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="Stock" pageWidth="595" pageHeight="842"
+              columnWidth="515" leftMargin="40" rightMargin="40"
+              topMargin="40" bottomMargin="40" uuid="c9b5a8b0-1e2f-4a3d-9a0b-111122223333">
+
+    <!-- ===================================================================
+         STYLE — lignes alternées blanc / gris clair, comme l'ancien code
+         (row % 2 == 0 -> blanc, sinon gris clair)
+         Doit être déclaré AVANT les parameters/fields (ordre imposé par le XSD JasperReports).
+         =================================================================== -->
+    <style name="LigneAlternee" mode="Opaque" forecolor="#000000" backcolor="#FFFFFF">
+        <conditionalStyle>
+            <conditionExpression><![CDATA[$V{REPORT_COUNT} % 2 == 0]]></conditionExpression>
+            <style backcolor="#F5F5F5"/>
+        </conditionalStyle>
+    </style>
+
+    <!-- ===================================================================
+         PARAMÈTRES
+         =================================================================== -->
+    <parameter name="dateImpression" class="java.lang.String"/>
+    <parameter name="logoImage" class="java.io.InputStream"/>
+    <parameter name="societeNom" class="java.lang.String"/>
+    <parameter name="societeActivite" class="java.lang.String"/>
+    <parameter name="societeAdresse" class="java.lang.String"/>
+    <parameter name="societeTel" class="java.lang.String"/>
+    <parameter name="societeEmail" class="java.lang.String"/>
+    <parameter name="societeMF" class="java.lang.String"/>
+
+    <!-- ===================================================================
+         CHAMPS — issus de ArticleStockLigne (id, designation, stock)
+         =================================================================== -->
+    <field name="id" class="java.lang.Integer"/>
+    <field name="designation" class="java.lang.String"/>
+    <field name="stock" class="java.lang.Integer"/>
+
+    <!-- ===================================================================
+         PAGE HEADER — logo + infos société sur chaque page.
+         Titre et date d'édition uniquement sur la 1ère page
+         (équivalent au "if (pageIndex == 0)" de l'ancien code).
+         =================================================================== -->
+    <pageHeader>
+        <band height="120" splitType="Stretch">
+
+            <image scaleImage="RetainShape" onErrorType="Blank">
+                <reportElement x="0" y="0" width="60" height="60" uuid="1a111111-0000-0000-0000-000000000001"/>
+                <imageExpression><![CDATA[$P{logoImage}]]></imageExpression>
+            </image>
+
+            <textField textAdjust="ScaleFont">
+                <reportElement x="80" y="15" width="435" height="30" uuid="1a111111-0000-0000-0000-000000000002"/>
+                <textElement verticalAlignment="Middle">
+                    <font fontName="Arial" size="24" isBold="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$P{societeNom}]]></textFieldExpression>
+            </textField>
+
+            <!-- Titre — uniquement page 1 -->
+            <staticText>
+                <reportElement x="0" y="72" width="515" height="28" uuid="1a111111-0000-0000-0000-000000000008">
+                    <printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1]]></printWhenExpression>
+                </reportElement>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="Arial" size="20" isBold="true"/>
+                </textElement>
+                <text><![CDATA[ÉTAT DU STOCK JOURNALIER]]></text>
+            </staticText>
+
+            <!-- Date d'édition — sous le titre, uniquement page 1 -->
+            <textField textAdjust="ScaleFont">
+                <reportElement x="0" y="101" width="515" height="14" uuid="1a111111-0000-0000-0000-000000000009">
+                    <printWhenExpression><![CDATA[$V{PAGE_NUMBER} == 1]]></printWhenExpression>
+                </reportElement>
+                <textElement textAlignment="Center">
+                    <font fontName="Arial" size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Date d'édition: " + $P{dateImpression}]]></textFieldExpression>
+            </textField>
+
+        </band>
+    </pageHeader>
+
+    <!-- ===================================================================
+         EN-TÊTES DE COLONNES — sur chaque page (comme l'ancien code, qui
+         redessine le tableau à chaque page imprimée)
+         =================================================================== -->
+    <columnHeader>
+        <band height="25" splitType="Stretch">
+
+            <staticText>
+                <reportElement x="0" y="0" width="62" height="25" backcolor="#D3D3D3" mode="Opaque" uuid="2b222222-0000-0000-0000-000000000001"/>
+                <box>
+                    <pen lineWidth="1.0" lineColor="#000000"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="Arial" size="11" isBold="true"/>
+                </textElement>
+                <text><![CDATA[ID]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="62" y="0" width="350" height="25" backcolor="#D3D3D3" mode="Opaque" uuid="2b222222-0000-0000-0000-000000000002"/>
+                <box>
+                    <pen lineWidth="1.0" lineColor="#000000"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="Arial" size="11" isBold="true"/>
+                </textElement>
+                <text><![CDATA[DÉSIGNATION]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="412" y="0" width="103" height="25" backcolor="#D3D3D3" mode="Opaque" uuid="2b222222-0000-0000-0000-000000000003"/>
+                <box>
+                    <pen lineWidth="1.0" lineColor="#000000"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="Arial" size="11" isBold="true"/>
+                </textElement>
+                <text><![CDATA[QUANTITÉ]]></text>
+            </staticText>
+
+        </band>
+    </columnHeader>
+
+    <!-- ===================================================================
+         DÉTAIL — une ligne par article, fond alterné, désignation tronquée
+         à 32 caractères + "..." au-delà de 35 (identique à l'ancien code)
+         =================================================================== -->
+    <detail>
+        <band height="20" splitType="Stretch">
+
+            <textField textAdjust="ScaleFont">
+                <reportElement x="0" y="0" width="62" height="20" style="LigneAlternee" uuid="3c333333-0000-0000-0000-000000000001"/>
+                <box>
+                    <pen lineWidth="0.5" lineColor="#000000"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="Arial" size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{id}]]></textFieldExpression>
+            </textField>
+
+            <textField textAdjust="ScaleFont">
+                <reportElement x="62" y="0" width="350" height="20" style="LigneAlternee" uuid="3c333333-0000-0000-0000-000000000002"/>
+                <box leftPadding="5">
+                    <pen lineWidth="0.5" lineColor="#000000"/>
+                </box>
+                <textElement textAlignment="Left" verticalAlignment="Middle">
+                    <font fontName="Arial" size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$F{designation}.length() > 35 ? $F{designation}.substring(0, 32) + "..." : $F{designation}]]></textFieldExpression>
+            </textField>
+
+            <textField textAdjust="ScaleFont">
+                <reportElement x="412" y="0" width="103" height="20" style="LigneAlternee" uuid="3c333333-0000-0000-0000-000000000003"/>
+                <box>
+                    <pen lineWidth="0.5" lineColor="#000000"/>
+                </box>
+                <textElement textAlignment="Center" verticalAlignment="Middle">
+                    <font fontName="Arial" size="10"/>
+                </textElement>
+                <textFieldExpression><![CDATA[new java.text.DecimalFormat("#,##0", new java.text.DecimalFormatSymbols(java.util.Locale.FRANCE)).format($F{stock})]]></textFieldExpression>
+            </textField>
+
+        </band>
+    </detail>
+
+    <!-- ===================================================================
+         PAGE FOOTER — "Page X/Y" + date d'édition, comme l'ancien printFooter()
+         =================================================================== -->
+    <pageFooter>
+        <band height="40" splitType="Stretch">
+
+            <line>
+                <reportElement x="0" y="0" width="515" height="1" uuid="4d444444-0000-0000-0000-000000000001"/>
+            </line>
+
+            <textField textAdjust="ScaleFont" evaluationTime="Page">
+                <reportElement x="395" y="5" width="60" height="14" uuid="4d444444-0000-0000-0000-000000000002"/>
+                <textElement textAlignment="Right">
+                    <font fontName="Arial" size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Page " + $V{PAGE_NUMBER} + "/"]]></textFieldExpression>
+            </textField>
+
+            <textField textAdjust="ScaleFont" evaluationTime="Report">
+                <reportElement x="455" y="5" width="60" height="14" uuid="4d444444-0000-0000-0000-000000000003"/>
+                <textElement textAlignment="Left">
+                    <font fontName="Arial" size="9"/>
+                </textElement>
+                <textFieldExpression><![CDATA[$V{PAGE_NUMBER}.toString()]]></textFieldExpression>
+            </textField>
+
+            <textField textAdjust="ScaleFont">
+                <reportElement x="20" y="20" width="350" height="12" uuid="4d444444-0000-0000-0000-000000000004"/>
+                <textElement>
+                    <font fontName="Arial" size="8" isItalic="true"/>
+                </textElement>
+                <textFieldExpression><![CDATA["Document généré automatiquement le " + $P{dateImpression}]]></textFieldExpression>
+            </textField>
+
+        </band>
+    </pageFooter>
+
+</jasperReport>

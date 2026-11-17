@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd"
+              name="FactureFournisseur" pageWidth="595" pageHeight="842"
+              columnWidth="515" leftMargin="40" rightMargin="40"
+              topMargin="40" bottomMargin="40" uuid="f7000000-0000-0000-0000-000000000001">
+
+    <parameter name="numeroFacture" class="java.lang.String"/>
+    <parameter name="dateFacture" class="java.lang.String"/>
+    <parameter name="numeroFactureFournisseur" class="java.lang.String"/>
+    <parameter name="avecNumeroFournisseur" class="java.lang.Boolean"/>
+    <parameter name="nomFournisseur" class="java.lang.String"/>
+    <parameter name="matriculeFiscale" class="java.lang.String"/>
+    <parameter name="adresseFournisseur" class="java.lang.String"/>
+    <parameter name="telFournisseur" class="java.lang.String"/>
+    <parameter name="totalHT" class="java.lang.Double"/>
+    <parameter name="totalTVA" class="java.lang.Double"/>
+    <parameter name="totalTTC" class="java.lang.Double"/>
+    <parameter name="retenueSourcePct" class="java.lang.Double"/>
+    <parameter name="retenueSourceMontant" class="java.lang.Double"/>
+    <parameter name="hasRetenue" class="java.lang.Boolean"/>
+    <parameter name="netAPayer" class="java.lang.Double"/>
+    <parameter name="montantEnLettres" class="java.lang.String"/>
+    <parameter name="logoImage" class="java.io.InputStream"/>
+    <parameter name="societeNom" class="java.lang.String"/>
+    <parameter name="societeActivite" class="java.lang.String"/>
+    <parameter name="societeAdresse" class="java.lang.String"/>
+    <parameter name="societeTel" class="java.lang.String"/>
+    <parameter name="societeEmail" class="java.lang.String"/>
+    <parameter name="societeMF" class="java.lang.String"/>
+
+    <field name="reference" class="java.lang.String"/>
+    <field name="designation" class="java.lang.String"/>
+    <field name="qte" class="java.lang.Integer"/>
+    <field name="puHT" class="java.lang.Double"/>
+    <field name="totalHT" class="java.lang.Double"/>
+    <field name="tvaPct" class="java.lang.Double"/>
+    <field name="totalTTC" class="java.lang.Double"/>
+
+    <!-- ==================== TITLE ==================== -->
+    <title>
+        <band height="200" splitType="Stretch">
+            <image>
+                <reportElement x="0" y="0" width="70" height="70" uuid="f7000000-0000-0000-0000-000000000010"/>
+                <imageExpression><![CDATA[$P{logoImage}]]></imageExpression>
+            </image>
+            <textField textAdjust="ScaleFont">
+                <reportElement x="90" y="0" width="425" height="22" uuid="f7000000-0000-0000-0000-000000000011"/>
+                <textElement><font size="16" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$P{societeNom}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="ScaleFont">
+                <reportElement x="90" y="22" width="425" height="14" uuid="f7000000-0000-0000-0000-000000000012"/>
+                <textElement><font size="9"/></textElement>
+                <textFieldExpression><![CDATA[$P{societeActivite}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="ScaleFont">
+                <reportElement x="90" y="38" width="425" height="14" uuid="f7000000-0000-0000-0000-000000000013"/>
+                <textElement><font size="9"/></textElement>
+                <textFieldExpression><![CDATA[$P{societeAdresse}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="ScaleFont">
+                <reportElement x="90" y="53" width="425" height="14" uuid="f7000000-0000-0000-0000-000000000014"/>
+                <textElement><font size="9"/></textElement>
+                <textFieldExpression><![CDATA["Tel: " + $P{societeTel}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="ScaleFont">
+                <reportElement x="90" y="68" width="425" height="14" uuid="f7000000-0000-0000-0000-000000000015"/>
+                <textElement><font size="9"/></textElement>
+                <textFieldExpression><![CDATA["Email: " + $P{societeEmail}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="ScaleFont">
+                <reportElement x="90" y="83" width="425" height="14" uuid="f7000000-0000-0000-0000-000000000016"/>
+                <textElement><font size="9"/></textElement>
+                <textFieldExpression><![CDATA["MF: " + $P{societeMF}]]></textFieldExpression>
+            </textField>
+
+            <textField textAdjust="ScaleFont">
+                <reportElement x="0" y="105" width="300" height="24" uuid="f7000000-0000-0000-0000-000000000017"/>
+                <textElement><font size="15" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA["FACTURE D'ACHAT N°: " + $P{numeroFacture}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="ScaleFont">
+                <reportElement x="365" y="108" width="150" height="20" uuid="f7000000-0000-0000-0000-000000000018"/>
+                <textElement textAlignment="Right"><font size="11"/></textElement>
+                <textFieldExpression><![CDATA["Date: " + $P{dateFacture}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="ScaleFont">
+                <reportElement x="0" y="130" width="400" height="14" uuid="f7000000-0000-0000-0000-000000000019">
+                    <printWhenExpression><![CDATA[$P{avecNumeroFournisseur}]]></printWhenExpression>
+                </reportElement>
+                <textElement><font size="9" isItalic="true"/></textElement>
+                <textFieldExpression><![CDATA["N° Facture Fournisseur: " + $P{numeroFactureFournisseur}]]></textFieldExpression>
+            </textField>
+
+            <!-- Boîte INFORMATIONS FOURNISSEUR -->
+            <frame>
+                <reportElement x="0" y="148" width="515" height="48" uuid="f700000-0000-0000-0000-00000000001a"/>
+                <box><pen lineWidth="0.5"/></box>
+                <staticText>
+                    <reportElement x="5" y="3" width="240" height="14" uuid="f700000-0000-0000-0000-00000000001b"/>
+                    <textElement><font size="10" isBold="true" isUnderline="true"/></textElement>
+                    <text><![CDATA[INFORMATIONS FOURNISSEUR]]></text>
+                </staticText>
+                <textField textAdjust="ScaleFont">
+                    <reportElement x="5" y="20" width="250" height="24" uuid="f700000-0000-0000-0000-00000000001c"/>
+                    <textElement><font size="9"/></textElement>
+                    <textFieldExpression><![CDATA["Fournisseur: " + $P{nomFournisseur} + "\nAdresse: " + $P{adresseFournisseur}]]></textFieldExpression>
+                </textField>
+                <textField textAdjust="ScaleFont">
+                    <reportElement x="260" y="20" width="250" height="24" uuid="f700000-0000-0000-0000-00000000001d"/>
+                    <textElement><font size="9"/></textElement>
+                    <textFieldExpression><![CDATA["Tél: " + $P{telFournisseur} + "\nMatricule: " + $P{matriculeFiscale}]]></textFieldExpression>
+                </textField>
+            </frame>
+        </band>
+    </title>
+
+    <!-- ==================== PAGE HEADER (pages 2+) ==================== -->
+    <pageHeader>
+        <band height="28">
+            <printWhenExpression><![CDATA[$V{PAGE_NUMBER} > 1]]></printWhenExpression>
+            <textField textAdjust="ScaleFont">
+                <reportElement x="0" y="0" width="400" height="14" uuid="f700000-0000-0000-0000-00000000001e"/>
+                <textElement><font size="10" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA["FACTURE D'ACHAT N° : " + $P{numeroFacture} + "   (suite — page " + $V{PAGE_NUMBER} + ")"]]></textFieldExpression>
+            </textField>
+            <line>
+                <reportElement x="0" y="16" width="515" height="1" uuid="f700000-0000-0000-0000-00000000001f"/>
+            </line>
+        </band>
+    </pageHeader>
+
+    <!-- ==================== EN-TÊTES DU TABLEAU (7 colonnes) ==================== -->
+    <columnHeader>
+        <band height="25">
+            <staticText>
+                <reportElement x="0" y="0" width="55" height="25" backcolor="#000000" mode="Opaque" forecolor="#FFFFFF" uuid="f7000000-0000-0000-0000-000000000030"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[Ref.]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="55" y="0" width="150" height="25" backcolor="#000000" mode="Opaque" forecolor="#FFFFFF" uuid="f7000000-0000-0000-0000-000000000031"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[Désignation]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="205" y="0" width="40" height="25" backcolor="#000000" mode="Opaque" forecolor="#FFFFFF" uuid="f7000000-0000-0000-0000-000000000032"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[Qte]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="245" y="0" width="75" height="25" backcolor="#000000" mode="Opaque" forecolor="#FFFFFF" uuid="f7000000-0000-0000-0000-000000000033"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[P.U. HT]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="320" y="0" width="75" height="25" backcolor="#000000" mode="Opaque" forecolor="#FFFFFF" uuid="f7000000-0000-0000-0000-000000000034"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[Total HT]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="395" y="0" width="40" height="25" backcolor="#000000" mode="Opaque" forecolor="#FFFFFF" uuid="f7000000-0000-0000-0000-000000000035"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[TVA]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="435" y="0" width="80" height="25" backcolor="#000000" mode="Opaque" forecolor="#FFFFFF" uuid="f7000000-0000-0000-0000-000000000036"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8" isBold="true"/></textElement>
+                <text><![CDATA[Total TTC]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <!-- ==================== DETAIL ==================== -->
+    <detail>
+        <band height="18" splitType="Prevent">
+            <textField textAdjust="StretchHeight">
+                <reportElement x="0" y="0" width="55" height="18" uuid="f7000000-0000-0000-0000-000000000040"/>
+                <box leftPadding="2" rightPadding="2"><pen lineWidth="0.5" lineColor="#808080"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="7"/></textElement>
+                <textFieldExpression><![CDATA[$F{reference}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="StretchHeight">
+                <reportElement x="55" y="0" width="150" height="18" uuid="f7000000-0000-0000-0000-000000000041"/>
+                <box leftPadding="4" rightPadding="4"><pen lineWidth="0.5" lineColor="#808080"/></box>
+                <textElement verticalAlignment="Middle"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{designation}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="ScaleFont">
+                <reportElement x="205" y="0" width="40" height="18" uuid="f7000000-0000-0000-0000-000000000042"/>
+                <box><pen lineWidth="0.5" lineColor="#808080"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{qte}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="ScaleFont" pattern="#,##0.000">
+                <reportElement x="245" y="0" width="75" height="18" uuid="f7000000-0000-0000-0000-000000000043"/>
+                <box><pen lineWidth="0.5" lineColor="#808080"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{puHT}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="ScaleFont" pattern="#,##0.000">
+                <reportElement x="320" y="0" width="75" height="18" uuid="f7000000-0000-0000-0000-000000000044"/>
+                <box><pen lineWidth="0.5" lineColor="#808080"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{totalHT}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="ScaleFont" pattern="0.##'%'">
+                <reportElement x="395" y="0" width="40" height="18" uuid="f7000000-0000-0000-0000-000000000045"/>
+                <box><pen lineWidth="0.5" lineColor="#808080"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{tvaPct}]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="ScaleFont" pattern="#,##0.000">
+                <reportElement x="435" y="0" width="80" height="18" uuid="f7000000-0000-0000-0000-000000000046"/>
+                <box><pen lineWidth="0.5" lineColor="#808080"/></box>
+                <textElement textAlignment="Center" verticalAlignment="Middle"><font size="8"/></textElement>
+                <textFieldExpression><![CDATA[$F{totalTTC}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <!-- ==================== PAGE FOOTER (avant summary !) ==================== -->
+    <pageFooter>
+        <band height="20">
+            <textField textAdjust="ScaleFont">
+                <reportElement x="0" y="0" width="515" height="14" uuid="f7000000-0000-0000-0000-000000000060"/>
+                <textElement><font size="9" isItalic="true"/></textElement>
+                <textFieldExpression><![CDATA["Suite page " + $V{PAGE_NUMBER} + " ..."]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageFooter>
+    <lastPageFooter>
+        <band height="0"/>
+    </lastPageFooter>
+
+    <!-- ==================== SUMMARY ==================== -->
+    <summary>
+        <band height="230" splitType="Prevent">
+            <frame>
+                <reportElement x="235" y="0" width="280" height="130" uuid="f7000000-0000-0000-0000-000000000050"/>
+                <box><pen lineWidth="0.5"/></box>
+                <textField textAdjust="ScaleFont">
+                    <reportElement x="12" y="10" width="130" height="18" uuid="f7000000-0000-0000-0000-000000000051"/>
+                    <textElement><font size="10"/></textElement>
+                    <textFieldExpression><![CDATA["Total HT :"]]></textFieldExpression>
+                </textField>
+                <textField textAdjust="ScaleFont">
+                    <reportElement x="130" y="10" width="138" height="18" uuid="f7000000-0000-0000-0000-000000000052"/>
+                    <textElement textAlignment="Right"><font size="10"/></textElement>
+                    <textFieldExpression><![CDATA[String.format("%,.3f", $P{totalHT}) + " DT"]]></textFieldExpression>
+                </textField>
+
+                <!-- ★ Libellé fixe "TVA (19%)", reproduit tel quel de l'original -->
+                <textField textAdjust="ScaleFont">
+                    <reportElement x="12" y="28" width="130" height="18" uuid="f7000000-0000-0000-0000-000000000053"/>
+                    <textElement><font size="10"/></textElement>
+                    <textFieldExpression><![CDATA["TVA (19%) :"]]></textFieldExpression>
+                </textField>
+                <textField textAdjust="ScaleFont">
+                    <reportElement x="130" y="28" width="138" height="18" uuid="f7000000-0000-0000-0000-000000000054"/>
+                    <textElement textAlignment="Right"><font size="10"/></textElement>
+                    <textFieldExpression><![CDATA[String.format("%,.3f", $P{totalTVA}) + " DT"]]></textFieldExpression>
+                </textField>
+
+                <line>
+                    <reportElement x="12" y="50" width="256" height="1" uuid="f7000000-0000-0000-0000-000000000055"/>
+                </line>
+
+                <textField textAdjust="ScaleFont">
+                    <reportElement x="12" y="55" width="130" height="18" uuid="f7000000-0000-0000-0000-000000000056"/>
+                    <textElement><font size="11" isBold="true"/></textElement>
+                    <textFieldExpression><![CDATA["TOTAL TTC :"]]></textFieldExpression>
+                </textField>
+                <textField textAdjust="ScaleFont">
+                    <reportElement x="130" y="55" width="138" height="18" uuid="f7000000-0000-0000-0000-000000000057"/>
+                    <textElement textAlignment="Right"><font size="11" isBold="true"/></textElement>
+                    <textFieldExpression><![CDATA[String.format("%,.3f", $P{totalTTC}) + " DT"]]></textFieldExpression>
+                </textField>
+
+                <!-- Bandeau RETENUE À LA SOURCE (conditionnel) -->
+                <staticText>
+                    <reportElement x="12" y="75" width="256" height="14" uuid="f7000000-0000-0000-0000-000000000058">
+                        <printWhenExpression><![CDATA[$P{hasRetenue}]]></printWhenExpression>
+                    </reportElement>
+                    <textElement textAlignment="Center"><font size="9" isBold="true"/></textElement>
+                    <text><![CDATA[RETENUE À LA SOURCE]]></text>
+                </staticText>
+                <textField textAdjust="ScaleFont">
+                    <reportElement x="12" y="91" width="150" height="18" uuid="f7000000-0000-0000-0000-000000000059">
+                        <printWhenExpression><![CDATA[$P{hasRetenue}]]></printWhenExpression>
+                    </reportElement>
+                    <textElement><font size="10"/></textElement>
+                    <textFieldExpression><![CDATA[String.format("%.2f", $P{retenueSourcePct}) + " % sur TTC :"]]></textFieldExpression>
+                </textField>
+                <textField textAdjust="ScaleFont">
+                    <reportElement x="130" y="91" width="138" height="18" uuid="f700000-0000-0000-0000-00000000005a">
+                        <printWhenExpression><![CDATA[$P{hasRetenue}]]></printWhenExpression>
+                    </reportElement>
+                    <textElement textAlignment="Right"><font size="10"/></textElement>
+                    <textFieldExpression><![CDATA["- " + String.format("%,.3f", $P{retenueSourceMontant}) + " DT"]]></textFieldExpression>
+                </textField>
+
+                <textField textAdjust="ScaleFont">
+                    <reportElement x="12" y="112" width="130" height="18" uuid="f700000-0000-0000-0000-00000000005b"/>
+                    <textElement><font size="13" isBold="true"/></textElement>
+                    <textFieldExpression><![CDATA["NET À PAYER :"]]></textFieldExpression>
+                </textField>
+                <textField textAdjust="ScaleFont">
+                    <reportElement x="130" y="112" width="138" height="18" uuid="f700000-0000-0000-0000-00000000005c"/>
+                    <textElement textAlignment="Right"><font size="13" isBold="true"/></textElement>
+                    <textFieldExpression><![CDATA[String.format("%,.3f", $P{netAPayer}) + " DT"]]></textFieldExpression>
+                </textField>
+            </frame>
+
+            <textField textAdjust="ScaleFont">
+                <reportElement x="0" y="145" width="515" height="14" uuid="f700000-0000-0000-0000-00000000005d"/>
+                <textElement><font size="9" isItalic="true"/></textElement>
+                <textFieldExpression><![CDATA["Arrêté la présente facture à la somme de :"]]></textFieldExpression>
+            </textField>
+            <textField textAdjust="StretchHeight">
+                <reportElement x="0" y="160" width="515" height="30" uuid="f700000-0000-0000-0000-00000000005e"/>
+                <textElement><font size="10" isBold="true"/></textElement>
+                <textFieldExpression><![CDATA[$P{montantEnLettres}]]></textFieldExpression>
+            </textField>
+
+            <staticText>
+                <reportElement x="330" y="200" width="185" height="16" uuid="f700000-0000-0000-0000-00000000005f"/>
+                <textElement textAlignment="Right"><font size="10" isBold="true"/></textElement>
+                <text><![CDATA[Signature et cachet]]></text>
+            </staticText>
+        </band>
+    </summary>
+
+</jasperReport>
