@@ -102,7 +102,7 @@ public class AdminDashboard extends JFrame {
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         try {
             System.out.println("🔄 Fermeture : Sauvegarde en cours...");
-            GestionBackup.effectuerBackup(); 
+            GestionBackup.effectuerBackupFermeture();
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {

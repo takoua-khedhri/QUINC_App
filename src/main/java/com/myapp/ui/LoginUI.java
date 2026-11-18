@@ -94,7 +94,7 @@ public class LoginUI extends JFrame {
         this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
         try {
             System.out.println("Fermeture de l'application : Lancement du backup...");
-            boolean succes = GestionBackup.effectuerBackup();
+            boolean succes = GestionBackup.effectuerBackupFermeture();
             if (succes) {
                 System.out.println("Backup termine avec succes avant fermeture.");
             } else {
@@ -375,9 +375,34 @@ public class LoginUI extends JFrame {
     }
 
     public static void main(String[] args) {
+        // ★ Backup au démarrage + backup à l'arrêt (extinction Windows, etc.)
+        GestionBackup.installerSauvegardesAutomatiques();
+        installerFermetureSansFenetre();
         SwingUtilities.invokeLater(() -> {
             (new LoginUI()).setVisible(true);
         });
+    }
+
+    /**
+     * ★ CORRECTIF : fermer certaines fenêtres avec ✕ (Facture, Stock…) les
+     * détruisait sans rouvrir d'écran : l'application restait alors ouverte en
+     * arrière-plan, invisible, et ne faisait jamais son backup de fermeture.
+     * Désormais, si plus aucune fenêtre n'est affichée pendant 2 secondes
+     * (délai pour laisser s'ouvrir l'écran suivant), on quitte proprement :
+     * le backup d'arrêt est fait par GestionBackup.
+     */
+    private static void installerFermetureSansFenetre() {
+        Timer verification = new Timer(2000, ev -> {
+            for (java.awt.Window w : java.awt.Window.getWindows()) {
+                if (w.isShowing()) return;
+            }
+            System.out.println("Plus aucune fenêtre ouverte : fermeture de l'application.");
+            System.exit(0);
+        });
+        verification.setRepeats(false);
+        java.awt.Toolkit.getDefaultToolkit().addAWTEventListener(e -> {
+            if (e.getID() == java.awt.event.WindowEvent.WINDOW_CLOSED) verification.restart();
+        }, java.awt.AWTEvent.WINDOW_EVENT_MASK);
     }
 
     private static class GlowBackgroundPanel extends JPanel {

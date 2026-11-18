@@ -21,10 +21,40 @@ public class GestionBackup {
     // 2. Nom du dossier sur le PC (Disque Dur)
     private static final String LOCAL_FOLDER = "Backup_Facturation_LOCAL";
     
-    // Garder seulement les 10 derniers
-    private static final int MAX_BACKUPS = 10; 
+    // Garder seulement les 30 derniers (backup au démarrage ET à la fermeture)
+    private static final int MAX_BACKUPS = 30;
 
-    public static boolean effectuerBackup() {
+    private static boolean automatiqueInstalle = false;
+
+    /**
+     * ★ CORRECTIF : le backup n'était fait QUE si l'on fermait l'écran de
+     * connexion ou le tableau de bord avec ✕. Extinction de Windows, fermeture
+     * d'une autre fenêtre, application restée en arrière-plan… = aucun backup
+     * (ex. aucun backup du 17/11 chez un client qui avait pourtant travaillé).
+     * À appeler une fois au démarrage : backup immédiat + backup à l'arrêt de
+     * la JVM (System.exit, extinction/déconnexion Windows, arrêt du processus).
+     */
+    public static synchronized void installerSauvegardesAutomatiques() {
+        if (automatiqueInstalle) return;
+        automatiqueInstalle = true;
+        Thread demarrage = new Thread(GestionBackup::effectuerBackup, "backup-demarrage");
+        demarrage.setDaemon(true);
+        demarrage.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (!backupFermetureFait) effectuerBackup();
+        }, "backup-arret"));
+    }
+
+    private static volatile boolean backupFermetureFait = false;
+
+    /** Backup de fermeture (bouton ✕ de l'écran principal) ; le hook d'arrêt ne le refera pas. */
+    public static boolean effectuerBackupFermeture() {
+        boolean ok = effectuerBackup();
+        if (ok) backupFermetureFait = true;
+        return ok;
+    }
+
+    public static synchronized boolean effectuerBackup() {
         System.out.println("\n=== 🚀 BACKUP STRICT (Cloud + Local) ===");
         
         File sourceFile = trouverFichierSource();
@@ -104,6 +134,9 @@ public class GestionBackup {
         try {
             File destFile = new File(dossierDest, nomFichier);
             Files.copy(source.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            // ★ CORRECTIF : Windows conserve la date de modification de la base
+            // source ; le backup apparaissait donc avec une date ancienne.
+            destFile.setLastModified(System.currentTimeMillis());
             System.out.println("✅ OK -> " + destFile.getAbsolutePath());
             return true;
         } catch (IOException e) {
@@ -118,13 +151,38 @@ public class GestionBackup {
         return "gestion_" + sdf.format(new Date()) + ".db";
     }
 
+    /**
+     * ★ Remet la date de modification de chaque backup existant à la date
+     * inscrite dans son nom (gestion_aaaa-MM-jj_HH-mm-ss.db) — corrige les
+     * anciens backups qui affichaient la date de la base d'origine.
+     * Usage : java -cp ... com.myapp.db.GestionBackup corriger-dates <dossier>...
+     */
+    public static int corrigerDatesBackups(File dossier) {
+        int n = 0;
+        File[] fichiers = dossier.listFiles((dir, name) -> name.matches("gestion_\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}\\.db"));
+        if (fichiers == null) return 0;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
+        for (File f : fichiers) {
+            try {
+                Date d = sdf.parse(f.getName().substring(8, 27));
+                if (f.setLastModified(d.getTime())) n++;
+            } catch (Exception e) {
+                System.err.println("Date illisible : " + f.getName());
+            }
+        }
+        return n;
+    }
+
     // Garde uniquement les 10 derniers fichiers
     private static void nettoyerVieuxBackups(File dossier) {
         File[] fichiers = dossier.listFiles((dir, name) -> name.endsWith(".db") && name.startsWith("gestion_"));
         
         if (fichiers != null && fichiers.length > MAX_BACKUPS) {
             // Tri par date (ancien -> récent)
-            Arrays.sort(fichiers, (f1, f2) -> Long.compare(f1.lastModified(), f2.lastModified()));
+            // ★ CORRECTIF : tri par NOM (gestion_aaaa-MM-jj_HH-mm-ss.db) et non par
+            // date de modification, qui pouvait être celle de la base d'origine
+            // et faisait supprimer un backup récent au lieu du plus ancien.
+            Arrays.sort(fichiers, (f1, f2) -> f1.getName().compareTo(f2.getName()));
             
             // Suppression des plus vieux
             int aSupprimer = fichiers.length - MAX_BACKUPS;
@@ -137,6 +195,12 @@ public class GestionBackup {
     }
     
     public static void main(String[] args) {
+        if (args.length > 0 && "corriger-dates".equals(args[0])) {
+            for (int i = 1; i < args.length; i++) {
+                System.out.println(args[i] + " : " + corrigerDatesBackups(new File(args[i])) + " fichier(s) corrigé(s)");
+            }
+            return;
+        }
         effectuerBackup();
     }
 }
